@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情人節快樂</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            position: absolute;
+            top: 20%;
+            font-size: 50px;
+            text-shadow: 3px 3px 5px rgba(255, 0, 0, 0.8);
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>情人節快樂</h1>
+    <canvas id="fireworks"></canvas>
+    <script>
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        class Firework {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.particles = [];
+                for (let i = 0; i < 50; i++) {
+                    this.particles.push(new Particle(this.x, this.y));
+                }
+            }
+            update() {
+                this.particles.forEach((p, index) => {
+                    p.update();
+                    if (p.alpha <= 0) this.particles.splice(index, 1);
+                });
+            }
+            draw() {
+                this.particles.forEach(p => p.draw());
+            }
+        }
+        
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.speedX = (Math.random() - 0.5) * 4;
+                this.speedY = (Math.random() - 0.5) * 4;
+                this.alpha = 1;
+                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= 0.02;
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        let fireworks = [];
+        
+        function animate() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            fireworks.forEach((fw, index) => {
+                fw.update();
+                fw.draw();
+                if (fw.particles.length === 0) fireworks.splice(index, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+        
+        canvas.addEventListener("click", (e) => {
+            fireworks.push(new Firework(e.clientX, e.clientY));
+        });
+        
+        animate();
+    </script>
+</body>
+</html>
